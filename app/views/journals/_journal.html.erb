@@ -1,22 +1,60 @@
-<div id="<%= dom_id journal %>">
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Title:</strong>
-    <%= journal.title %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Content:</strong>
-    <%= journal.content %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Author:</strong>
-    <%= journal.author %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Published at:</strong>
-    <%= journal.published_at %>
-  </p>
-
+<div id="<%= dom_id journal %>" class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">
+      <%= journal.title %>
+    </h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+      By <%= journal.author %> • Published <%= journal.published_at.strftime("%B %d, %Y at %I:%M %p") %>
+    </p>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl>
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">
+          Content
+        </dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+          <%= simple_format(journal.content, class: "mb-0") %>
+        </dd>
+      </div>
+      <% if journal.images.attached? %>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">
+            Images
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+              <% journal.images.each do |image| %>
+                <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                  <%= image_tag image, class: "h-32 w-32 object-cover rounded-md" %>
+                  <div class="ml-4 flex-shrink-0">
+                    <%= link_to "View", rails_blob_path(image, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </dd>
+        </div>
+      <% end %>
+      <% if journal.videos.attached? %>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">
+            Videos
+          </dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+              <% journal.videos.each do |video| %>
+                <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                  <%= video_tag url_for(video), controls: true, class: "h-48 w-full object-cover rounded-md" %>
+                  <div class="ml-4 flex-shrink-0">
+                    <%= link_to "Download", rails_blob_path(video, disposition: "attachment"), class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
 </div>

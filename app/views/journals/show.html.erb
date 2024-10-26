@@ -1,15 +1,117 @@
-<div class="mx-auto md:w-2/3 w-full flex">
-  <div class="mx-auto">
-    <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-    <% end %>
-
-    <%= render @journal %>
-
-    <%= link_to "Edit this journal", edit_journal_path(@journal), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <%= link_to "Back to journals", journals_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to "Destroy this journal", @journal, method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+<div class="min-h-screen mt-12">
+  <% if @journal.images.attached? && @journal.images.first.present? %>
+    <div class="w-full h-96 relative overflow-hidden">
+      <%= image_tag @journal.images.first, class: "w-full h-full object-cover" %>
+      <div class="absolute inset-0 bg-black bg-opacity-50 flex items-end">
+        <div class="flex flex-col max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <h1 class="text-8xl font-extralight text-white mb-2"><%= @journal.title %></h1>
+          <p class="text-gray-300">
+            <span class="mr-4">
+              <i class="fas fa-user mr-2"></i><%= @journal.author %>
+            </span>
+            <span>
+              <i class="far fa-calendar-alt mr-2"></i><%= @journal.published_at.strftime("%B %d, %Y") %>
+            </span>
+          </p>
+        </div>
+      </div>
     </div>
+  <% end %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
+    <!-- Main Content -->
+    <div class="flex-1">
+      <% if notice.present? %>
+        <div class="mb-8 animate-fade-in-down">
+          <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-r-lg shadow-md" role="alert">
+            <p class="font-bold">Success</p>
+            <p><%= notice %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <article class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <% unless @journal.images.attached? && @journal.images.first.present? %>
+          <header class="bg-gray-800 text-white p-6">
+            <h1 class="text-3xl font-bold mb-2"><%= @journal.title %></h1>
+            <p class="text-gray-300">
+              <span class="mr-4">
+                <i class="fas fa-user mr-2"></i><%= @journal.author %>
+              </span>
+              <span>
+                <i class="far fa-calendar-alt mr-2"></i><%= @journal.published_at.strftime("%B %d, %Y at %I:%M %p") %>
+              </span>
+            </p>
+          </header>
+        <% end %>
+
+        <div class="p-6">
+          <div class="prose max-w-none" data-controller="lightbox">
+            <!-- Display journal content with media -->
+            <% 
+              content = @journal.content.to_s.split(/\n\n/)
+              media = (@journal.images.to_a.drop(1) + @journal.videos.to_a).shuffle
+              media_interval = [content.length / (media.length + 1), 1].max
+            %>
+            
+            <% content.each_with_index do |paragraph, index| %>
+              <%= simple_format(paragraph) %>
+              
+              <% if index % media_interval == 0 && media.any? %>
+                <% media_item = media.pop %>
+                <div class="my-8">
+                  <% if media_item.video? %>
+                    <div class="relative group">
+                      <%= video_tag url_for(media_item), controls: true, class: "w-full rounded-lg shadow-md" %>
+                    </div>
+                  <% else %>
+                    <div class="relative group cursor-pointer" data-action="click->lightbox#open">
+                      <%= image_tag media_item, class: "w-full rounded-lg shadow-md" %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Sidebar for Related Journals and Publisher's Bio -->
+    <div class="w-full lg:w-64 flex-shrink-0 space-y-6">
+      <!-- Publisher's Bio -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Publisher's Bio</h2>
+        <p class="text-gray-700">
+          <%= simple_format(@journal.author) %>
+        </p>
+      </div>
+      <!-- Related Journals -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Related Journals</h2>
+        <% @related_journals.each do |related| %>
+          <div class="mb-4">
+            <h3 class="text-lg font-medium text-indigo-600">
+              <%= link_to related.title, related %>
+            </h3>
+            <p class="text-gray-500 text-sm"><%= related.published_at.strftime("%B %d, %Y") %></p>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div data-controller="lightbox" class="fixed inset-0 z-50 flex items-center justify-center hidden" data-lightbox-target="modal">
+  <div class="absolute inset-0 bg-black opacity-75"></div>
+  <div class="relative">
+    <button data-action="lightbox#close" class="absolute top-4 right-4 text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <img data-lightbox-target="image" src="" alt="Lightbox image" class="max-h-screen max-w-screen-lg">
   </div>
 </div>

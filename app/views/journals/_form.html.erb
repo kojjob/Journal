@@ -1,37 +1,86 @@
-<%= form_with(model: journal, class: "contents") do |form| %>
-  <% if journal.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(journal.errors.count, "error") %> prohibited this journal from being saved:</h2>
+<%= form_with(model: journal, class: "max-w-2xl mx-auto bg-white shadow-lg rounded-lg px-8 pt-6 pb-8 mb-4") do |form| %>
 
-      <ul>
-        <% journal.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+  <%= render 'shared/error_messages', object: journal %>
+
+  <div class="mb-6">
+    <%= form.label :title, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.text_field :title, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", placeholder: "Enter the title of your journal entry" %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :category_id, "Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.collection_select :category_id, Category.all, :id, :name, { prompt: "Select a category" }, { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" } %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :content, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <p class="text-sm text-gray-500 mb-2">Write your journal entry here. You can format text, add links, and insert images.</p>
+    <%= form.textarea :content, class: "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder: "Start writing your journal entry..." %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :author, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= form.text_field :author, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500", placeholder: "Your name" %>
+  </div>
+
+  <div class="mb-6">
+    <%= form.label :published_at, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.datetime_field :published_at, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500",
+               data: { controller: "flatpickr", flatpickr_date_format: "Y-m-d H:i", flatpickr_min_date: Time.zone.now } %>
+      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+        </svg>
+      </div>
     </div>
-  <% end %>
-
-  <div class="my-5">
-    <%= form.label :title %>
-    <%= form.text_field :title, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full" %>
+    <p class="mt-2 text-sm text-gray-500">
+      Current: <%= journal.published_at&.strftime("%B %d, %Y at %I:%M %p") || "Not set" %>
+    </p>
   </div>
 
-  <div class="my-5">
-    <%= form.label :content %>
-    <%= form.textarea :content, rows: 4, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full" %>
+  <div class="mb-6" data-controller="file-upload" data-file-upload-preview-class="mt-2 flex flex-wrap gap-2">
+    <%= form.label :images, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+      <div class="space-y-1 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="flex text-sm text-gray-600">
+          <label for="journal_images" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+            <span>Upload images</span>
+            <%= form.file_field :images, multiple: true, direct_upload: true, class: "sr-only", data: { action: "change->file-upload#handleFiles", file_upload_target: "input" } %>
+          </label>
+          <p class="pl-1">or drag and drop</p>
+        </div>
+        <p class="text-xs text-gray-500">PNG, JPG up to 10MB each</p>
+      </div>
+    </div>
+    <div data-file-upload-target="preview" class="mt-2 flex flex-wrap gap-2"></div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :author %>
-    <%= form.text_field :author, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full" %>
+  <div class="mb-6" data-controller="file-upload" data-file-upload-preview-class="mt-2 flex flex-wrap gap-2">
+    <%= form.label :videos, class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+      <div class="space-y-1 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v10.764a1 1 0 01-1.447.894L15 18M5 18h8m-8-6h8m-8 6v-6m0 0l4.553-2.276A1 1 0 0113 8.618v10.764a1 1 0 01-1.447.894L7 18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="flex text-sm text-gray-600">
+          <label for="journal_videos" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+            <span>Upload videos</span>
+            <%= form.file_field :videos, multiple: true, direct_upload: true, class: "sr-only", data: { action: "change->file-upload#handleFiles", file_upload_target: "input" } %>
+          </label>
+          <p class="pl-1">or drag and drop</p>
+        </div>
+        <p class="text-xs text-gray-500">MP4, MOV up to 100MB each</p>
+      </div>
+    </div>
+    <div data-file-upload-target="preview" class="mt-2 flex flex-wrap gap-2"></div>
   </div>
 
-  <div class="my-5">
-    <%= form.label :published_at %>
-    <%= form.datetime_field :published_at, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
+  <div class="flex items-center justify-between mt-8">
+    <%= form.submit class: "px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+    <%= link_to 'Cancel', journals_path, class: "text-sm text-gray-600 hover:text-gray-900" %>
   </div>
 <% end %>

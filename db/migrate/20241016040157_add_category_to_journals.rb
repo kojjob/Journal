@@ -1,0 +1,5 @@
+class AddCategoryToJournals < ActiveRecord::Migration[8.0]
+  def change
+    add_reference :journals, :category, null: true, foreign_key: true
+  end
+end
