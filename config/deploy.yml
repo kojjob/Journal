@@ -1,8 +1,8 @@
 # Name of your application. Used to uniquely configure containers.
-service: i_ghana
+service: ighana
 
 # Name of the container image.
-image: kojb/i_ghana
+image: kojb/ighana
 
 # Deploy to these servers.
 servers:
@@ -17,7 +17,7 @@ servers:
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).
 proxy:
   ssl: true
-  host: app.example.com
+  host: .imlikeu.com
 
 # Credentials for your image host.
 registry:
