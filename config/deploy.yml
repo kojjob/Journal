@@ -72,7 +72,6 @@ asset_path: /rails/public/assets
 
 # Configure the image builder.
 builder:
-  path: .
   arch: arm64
 
  
