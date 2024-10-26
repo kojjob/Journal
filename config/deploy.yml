@@ -17,7 +17,7 @@ servers:
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).
 proxy:
   ssl: false
-  host: .imlikeu.com
+  host: imlikeu.com
 
 # Credentials for your image host.
 registry:
