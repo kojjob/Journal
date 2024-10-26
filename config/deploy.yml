@@ -18,6 +18,7 @@ servers:
 proxy:
   ssl: false
   host: imlikeu.com
+  options: "--publish 80:80"
 
 # Credentials for your image host.
 registry:
@@ -39,7 +40,7 @@ env:
     SOLID_QUEUE_IN_PUMA: true
 
     # Set number of processes dedicated to Solid Queue (default: 1)
-    # JOB_CONCURRENCY: 3
+    JOB_CONCURRENCY: 3
 
     # Set number of cores available to the application on each server (default: 1).
     # WEB_CONCURRENCY: 2
@@ -49,6 +50,8 @@ env:
 
     # Log everything from Rails
     RAILS_LOG_LEVEL: debug
+    PORT: 80
+    BIND: "tcp://0.0.0.0:80"
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.
